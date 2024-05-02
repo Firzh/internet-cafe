@@ -1,0 +1,12 @@
+{
+    "$date": "Kamis, 2-05-2024",
+    "&log": [
+        {
+            "$jam": "13:54:18",
+            "%kegiatan": "Admin telah login",
+            "&admin": "kize"
+        }
+    ],
+    "^warning!": [],
+    "~error!!": []
+}
