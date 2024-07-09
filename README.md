@@ -1,4 +1,6 @@
-# mini-project
-It is repository for my mini project 
+# internet-cafe
 
-Merupakan tempat menyimpan file praktikum saya untuk dapat diberikan tambahan di masa yang akan datang
+---
+
+### **Deskripsi**
+Sebuah program simulasi internet-cafe / warnet sebagai alat pengelolaan komputer dalam warnet
