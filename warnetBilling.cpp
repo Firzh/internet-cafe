@@ -7,7 +7,6 @@
 #include <sstream>
 #include <string>
 #include <cctype>
-#include <vector>
 #include <ctime>
 
 using namespace std;
@@ -410,20 +409,19 @@ public:
 
     const string PI = "1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549308196442881097566593344612847564823378678316527120190914564856692346034861045432664821339360726024914127372458700663155881748815209209628292540919171536436789259036001133053054882046652138414695194151160943305727036575959195309218611738193261179310511854807446237996274956735188575272489122793818301194912983367336244065664308602139494639522473719070217986094370277053921717629317678765195982534904287554687311595628638823537875937519577818577805321712268066130019278766111959092164201989";
 
-    vector<string> fillDigits() {
-        vector<string> pi_digits;
-        for (size_t i = 0; i < PI.length(); i += 3) {
-            pi_digits.push_back(PI.substr(i, 3));
+    void fillDigits(string pi_digits[], size_t& size) {
+        size = PI.length() / 3;
+        for (size_t i = 0; i < size; ++i) {
+            pi_digits[i] = PI.substr(i * 3, 3);
         }
-        return pi_digits;
     }
 
-    string generateUsername(const vector<string>& pi_digits) {
+    string generateUsername(string pi_digits[], size_t size) {
         string username;
         srand(time(0)); 
 
         for (int i = 0; i < 2; ++i) { 
-            int randomIndex = rand() % pi_digits.size();
+            int randomIndex = rand() % size;
             username += pi_digits[randomIndex];
         }
 
@@ -1189,9 +1187,14 @@ int main() {
                         cout << headerBorder << headerUserPaketan << headerBorder << endl;
 
                         Member newMember;
-                        vector<string> pi_digits = list.fillDigits();
+                        const size_t maxSize = 6; // Sesuaikan dengan jumlah maksimum digit yang diharapkan
+                        string pi_digits[maxSize];
+                        size_t size;
 
-                        string hasilGenerateUname = list.generateUsername(pi_digits);
+                        list.fillDigits(pi_digits, size);
+                        string username = list.generateUsername(pi_digits, size);
+
+                        string hasilGenerateUname = username;
                         newMember.username = hasilGenerateUname;
                         list.paketNonMember(newMember);   
                         list.tambahMember(newMember);  
