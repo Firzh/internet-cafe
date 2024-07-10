@@ -47,3 +47,15 @@ int main() {
 
     return 0;
 }
+
+// Penjelasan tambahan:
+// mbstowcs:
+
+// Fungsi ini mengubah string C-style (const char*) menjadi wide string (wchar_t), yang diperlukan oleh ShellExecute.
+// Parameter pertama adalah buffer untuk wide string.
+// Parameter kedua adalah string C-style yang akan dikonversi.
+// Parameter ketiga adalah panjang string termasuk karakter null terminator.
+// LPCWSTR:
+
+// Tipe data untuk wide string constant pointer yang diperlukan oleh ShellExecute.
+// Dengan melakukan konversi ini, Anda memastikan bahwa ShellExecute menerima tipe data yang tepat dan dapat membuka aplikasi atau URL yang diinginkan tanpa kesalahan.
