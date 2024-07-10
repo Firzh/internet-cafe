@@ -5,7 +5,12 @@ using namespace std;
 
 // Fungsi untuk membuka URL atau aplikasi
 void open_application(const char* application) {
-    ShellExecute(0, 0, application, 0, 0, SW_SHOW);
+    // Mengubah string C-style ke wide string
+    wchar_t wtext[256];
+    mbstowcs(wtext, application, strlen(application) + 1);
+    LPCWSTR lpwstr = wtext;
+
+    ShellExecute(0, 0, lpwstr, 0, 0, SW_SHOW);
 }
 
 int main() {
