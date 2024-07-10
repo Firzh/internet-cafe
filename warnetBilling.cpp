@@ -50,6 +50,13 @@ struct Member {
     double billing;
     string paket;
     string group;
+    int memberCredits;
+};
+
+struct komputer{
+    int idKomputer;
+    bool used;
+    komputer *next;
 };
 
 struct DateTime {
@@ -1375,6 +1382,10 @@ int main() {
                 while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
                 clearScreen();  
             }
+        }
+        else if (pilihanLogin == 3) {
+            clearScreen();
+            cout << headerBorder << headerBorder;
         }
     }
     return 0;
