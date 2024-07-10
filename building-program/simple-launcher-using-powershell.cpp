@@ -10,7 +10,7 @@ void open_application(const char* application) {
     mbstowcs(wtext, application, strlen(application) + 1);
     LPCWSTR lpwstr = wtext;
 
-    ShellExecute(0, 0, lpwstr, 0, 0, SW_SHOW);
+    ShellExecuteW(0, 0, lpwstr, 0, 0, SW_SHOW);
 }
 
 int main() {
@@ -49,13 +49,10 @@ int main() {
 }
 
 // Penjelasan tambahan:
-// mbstowcs:
-
-// Fungsi ini mengubah string C-style (const char*) menjadi wide string (wchar_t), yang diperlukan oleh ShellExecute.
-// Parameter pertama adalah buffer untuk wide string.
-// Parameter kedua adalah string C-style yang akan dikonversi.
-// Parameter ketiga adalah panjang string termasuk karakter null terminator.
-// LPCWSTR:
-
-// Tipe data untuk wide string constant pointer yang diperlukan oleh ShellExecute.
-// Dengan melakukan konversi ini, Anda memastikan bahwa ShellExecute menerima tipe data yang tepat dan dapat membuka aplikasi atau URL yang diinginkan tanpa kesalahan.
+// ShellExecuteW:
+// Fungsi ini digunakan untuk menjalankan aplikasi atau membuka URL dengan menerima parameter wide string (LPCWSTR).
+// Anda menggunakan mbstowcs untuk mengonversi string C-style (const char*) ke wide string (wchar_t), yang kemudian disimpan dalam LPCWSTR (lpwstr).
+// Perubahan Penting:
+// Menggunakan ShellExecuteW daripada ShellExecute untuk memastikan bahwa fungsi menerima parameter dengan tipe data yang sesuai (wide string).
+// Menggunakan mbstowcs untuk konversi string dari const char* menjadi wchar_t, yang sesuai dengan kebutuhan ShellExecuteW.
+// Dengan perubahan ini, seharusnya Anda dapat menjalankan program launcher ini tanpa kesalahan terkait tipe data pada ShellExecute.
