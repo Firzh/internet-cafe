@@ -286,6 +286,25 @@ void tambahEntri(string jenis, string admin, string kegiatan, string member, str
     simpanKeJson(data, "Log.json");
 }
 
+void simpanPrintout(const string& namaFile, const string& username, const string& password) {
+    json data = bacaFileJson("PrintOut.json");
+
+    if (data.empty()) {
+        data["printOut"] = json::array();
+    }
+
+    json newData = {
+        {"Username", username},
+        {"Password", password}
+    };
+
+    data["printOut"].push_back(newData);
+
+    ofstream outFile(namaFile);
+    outFile << data.dump(4);  // Dump dengan indentation 4 spasi untuk format yang rapi
+    outFile.close();
+}
+
 string headerDisplayBorder = "|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|\n";
 string headerBorder        = "===============================================================================================\n";
 string headerAdmin         = "                                         Menu Admin                                            \n";
