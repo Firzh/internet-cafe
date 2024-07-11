@@ -128,7 +128,7 @@ DateTime getDateTime() {
 }
 
 // Fungsi timer hitung mundur
-void countdown_timer(int duration) {
+void countdownTimer(int duration) {
     time_t start_time = time(nullptr);
 
     while (true) {
@@ -148,6 +148,12 @@ void countdown_timer(int duration) {
     }
 }
 
+// Fungsi konversi jam ke detik
+float convertHourToSec(float hour) {
+    float sec;
+    sec = hour * 60 * 60;
+    return sec;
+}
 
 // Fungsi untuk membaca file JSON
 json bacaFileJson(const string& namaFile) {
@@ -445,9 +451,7 @@ public:
                 while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
                 clearScreen();
                 cout << "Selamat datang!\n";
-                clock_t start_time = clock();
-                while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
-                return true;
+                Sleep(2);
             }
             // Melanjutkan ke node selanjutnya jika salah
             current = current->next;
@@ -724,11 +728,13 @@ public:
             case 1:
                 newMember.paket = "Member 5 jam";
                 newMember.billing = 20000;
+                newMember.memberCredits = 5 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             case 2:
                 newMember.paket = "Member 10 jam";
                 newMember.billing = 40000;
+                newMember.memberCredits = 10 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             default:
@@ -752,11 +758,13 @@ public:
             case 1:
                 newMember.paket = "Member 4 jam";
                 newMember.billing = 20000;
+                newMember.memberCredits = 5 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             case 2:
                 newMember.paket = "Member 10 jam";
                 newMember.billing = 50000;
+                newMember.memberCredits = 10 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             default:
@@ -780,11 +788,13 @@ public:
             case 1:
                 newMember.paket = "Member 3 jam";
                 newMember.billing = 25000;  
+                newMember.memberCredits = 3 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             case 2:
                 newMember.paket = "Member 7 jam";
                 newMember.billing = 50000; 
+                newMember.memberCredits = 7 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             default:
@@ -808,11 +818,13 @@ public:
             case 1:
                 newMember.paket = "Member 4 jam";
                 newMember.billing = 50000; 
+                newMember.memberCredits = 4 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing); 
                 break;
             case 2:
                 newMember.paket = "Member 7 jam";
                 newMember.billing = 75000; 
+                newMember.memberCredits = 7 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             default:
@@ -873,6 +885,7 @@ public:
         cout << "Pilihan Paket:\n";
         cout << "1. Member 5 jam\n";
         cout << "2. Member 10 jam\n";
+        cout << "3. Custom\n";
         cout << "Masukkan pilihan paket: ";
         
         int pilihanGi3;
@@ -889,6 +902,11 @@ public:
                 member.billing = 40000;
                 tambahDataPemasukan("Pemasukan.json", member.billing);
                 break;
+            case 3:
+                cout << "Masukkan billing :";
+                cin >> member.billing;
+                member.memberCredits = member.billing / 4000 * 3600;
+                break;
             default:
                 cout << "Pilihan tidak valid.\n";
                 break;
@@ -901,6 +919,7 @@ public:
         cout << "Pilihan Paket:\n";
         cout << "1. Member 4 jam\n";
         cout << "2. Member 10 jam\n";
+        cout << "3. Custom\n";
         cout << "Masukkan pilihan paket: ";
         
         int pilihanGi5;
@@ -917,6 +936,11 @@ public:
                 member.billing = 50000;
                 tambahDataPemasukan("Pemasukan.json", member.billing);
                 break;
+            case 3:
+                cout << "Masukkan billing :";
+                cin >> member.billing;
+                member.memberCredits = member.billing / 5000 * 3600;
+                break;
             default:
                 cout << "Pilihan tidak valid.\n";
                 break;
@@ -929,6 +953,7 @@ public:
         cout << "Pilihan Paket:\n";
         cout << "1. Member 3 jam\n";
         cout << "2. Member 7 jam\n";
+        cout << "3. Custom\n";
         cout << "Masukkan pilihan paket: ";
         
         int pilihanGi7;
@@ -945,6 +970,11 @@ public:
                 member.billing = 50000; 
                 tambahDataPemasukan("Pemasukan.json", member.billing);
                 break;
+            case 3:
+                cout << "Masukkan billing :";
+                cin >> member.billing;
+                member.memberCredits = member.billing / 7000 * 3600;
+                break;
             default:
                 cout << "Pilihan tidak valid.\n";
                 break;
@@ -957,6 +987,7 @@ public:
         cout << "Pilihan Paket:\n";
         cout << "1. Member 4 jam\n";
         cout << "2. Member 7 jam\n";
+        cout << "3. Custom\n";
         cout << "Masukkan pilihan paket: ";
         
         int pilihanGVIP;
@@ -972,6 +1003,11 @@ public:
                 member.paket = "Member 7 jam";
                 member.billing = 75000; 
                 tambahDataPemasukan("Pemasukan.json", member.billing);
+                break;
+            case 3:
+                cout << "Masukkan billing :";
+                cin >> member.billing;
+                member.memberCredits = member.billing / 12500 * 3600;
                 break;
             default:
                 cout << "Pilihan tidak valid.\n";
@@ -1331,7 +1367,7 @@ int main() {
                         } else {
                             cout << "Member ditemukan: " << member.username << endl;
                             while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}  
-                            cout << "Billing baru: " << member.billing << endl;
+                            cout << "Billing: " << member.billing << endl;
 
                             list.pilihPaketMember(member);
 
