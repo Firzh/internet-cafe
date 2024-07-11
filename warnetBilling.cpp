@@ -425,14 +425,34 @@ public:
 
     // Fungsi untuk verifikasi member berdasarkan username dan password
     bool cekLoginUser(string username, string password) {
-        if (head == nullptr) return false;
 
+        // Cek apakah terdapat member dengan melihat head bukan merupakan nullptr
+        if (head == nullptr) {
+            cout << "Member tidak ada...\n";
+            clock_t start_time = clock();
+            while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}  
+            return false;
+        }
+
+        // Set current node menjadi head
         Node* current = head;
+
+        //  Melakukan pencarian dan pengecekan username + password yang dimasukkan user
         do {
             if (current->data.username == username && current->data.password == password) {
+                cout << "Memverifikasi...\n";
+                clock_t start_time = clock();
+                while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
+                clearScreen();
+                cout << "Selamat datang!\n";
+                clock_t start_time = clock();
+                while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
                 return true;
             }
+            // Melanjutkan ke node selanjutnya jika salah
             current = current->next;
+
+        // Berhenti apabila kembali bertemu node yang di set menjadi head agar tidak terjadi infinite looping
         } while (current != head);
 
         return false;
@@ -985,10 +1005,25 @@ public:
         ch = getch();
         clearScreen();
     }
+
+    Node* cariMemberBerdasarkanNama(string nama) {
+        if (head == nullptr) return nullptr;
+
+        Node* current = head;
+        do {
+            if (current->data.username == nama) {
+                return current;
+            }
+            current = current->next;
+        } while (current != head);
+
+        return nullptr;
+    }
+
 };
 
 //================================================================================================================
-// fungsi int main (operator)
+// int main (operator)
 
 // int main() {
 //     int duration;
