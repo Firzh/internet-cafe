@@ -107,17 +107,6 @@ bool cekLoginOperator(const string& opname, const string& oppass) {
     return false; 
 }
 
-// Fungsi untuk mendapatkan waktu saat ini dalam format ISO 8601
-string getIso8601Time() {
-    auto t = time(nullptr);
-    auto tm = *gmtime(&t);
-    tm.tm_hour += 7; // UTC+7
-
-    ostringstream oss;
-    oss << put_time(&tm, "%FT%T%z");  
-    return oss.str();
-}
-
 DateTime getDateTime() {
     DateTime result;
 
@@ -206,6 +195,9 @@ void countdown_timer(int duration) {
 void tambahDataPemasukan(const string& namaFile, double pemasukan) {
     json data;
 
+    DateTime waktu = getDateTime();
+    string date = waktu.hari + waktu.tanggal;
+
     if (ifstream(namaFile)) {
         data = bacaFileJson(namaFile);
     }
@@ -216,7 +208,7 @@ void tambahDataPemasukan(const string& namaFile, double pemasukan) {
     }
 
     json newData = {
-        {"tanggal", getIso8601Time()}, 
+        {"tanggal", date}, 
         {"pemasukan", pemasukan} 
     };
 
@@ -412,6 +404,21 @@ public:
         cout << "Member berhasil ditambah!\n";
         clock_t start_time = clock();
         while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}  
+    }
+
+    // Fungsi untuk verifikasi member berdasarkan username dan password
+    bool cekLoginUser(string username, string password) {
+        if (head == nullptr) return false;
+
+        Node* current = head;
+        do {
+            if (current->data.username == username && current->data.password == password) {
+                return true;
+            }
+            current = current->next;
+        } while (current != head);
+
+        return false;
     }
 
     string generateUniquePass(const Member& member) {
@@ -994,10 +1001,10 @@ public:
 
 int main() {
     clearScreen();
-    DoubleLinkedlist list;
-    tempAdmin newAdmin;
-    string uname = "", pass, opname = "", oppass, tempLogin;
-    int loop = 0, pilihanLogin;
+    DoubleLinkedlist list;                                  //pembuatan obj "list" dari class Doublelinkedlist
+    tempAdmin newAdmin;                                     //pembuatan obj "newAdmin" dari struct tempAdmin
+    string uname, pass, opname, oppass, tempLogin;          //inisialisasi global variabel string untuk login admin dan operator
+    int loop = 0, pilihanLogin;                             //inisialisasi variabel untuk looping program dan if else
 
     while (loop != 1) {
         cout << headerBorder << headerLogin << headerBorder;
@@ -1385,9 +1392,20 @@ int main() {
                 clearScreen();  
             }
         }
+//================================================================================================================
+// int main (user)
         else if (pilihanLogin == 3) {
             clearScreen();
-            cout << headerBorder << headerBorder;
+            cout << headerBorder << headerMember << headerBorder;
+            cout << "Username : ";
+            cin >> uname;
+            cout << "Password : ";
+            pass = passwordMask();
+
+            if (list.cekLoginUser(uname, pass)) {
+                tambahEntri("log", "", "User telah login", "uname", "", "", "");
+
+            }
         }
     }
     return 0;
