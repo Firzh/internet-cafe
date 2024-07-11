@@ -300,9 +300,7 @@ void simpanPrintout(const string& namaFile, const string& username, const string
 
     data["printOut"].push_back(newData);
 
-    ofstream outFile(namaFile);
-    outFile << data.dump(4);  // Dump dengan indentation 4 spasi untuk format yang rapi
-    outFile.close();
+    simpanKeJson(data, "PrintOut.json");
 }
 
 string headerDisplayBorder = "|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|\n";
