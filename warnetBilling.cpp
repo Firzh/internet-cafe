@@ -17,26 +17,6 @@ void clearScreen() {
     system("cls");
 }
 
-string passwordMask() {
-    string password;
-    char ch;
-
-    ch = _getch();  
-
-    while (ch != 13) { 
-        if (ch != 8) { 
-            password.push_back(ch);
-            cout << '*';
-        } else if (!password.empty()) { 
-            password.pop_back();
-            cout << "\b \b"; 
-        }
-        ch = _getch();
-    }
-    cout << endl;
-    return password;
-}
-
 struct tempAdmin{
     string username;
     string password;
@@ -65,46 +45,24 @@ struct DateTime {
     string tanggal;
 };
 
-// Fungsi untuk membaca file JSON
-json bacaFileJson(const string& namaFile) {
-    ifstream file(namaFile);
-    json data;
-    if (file.is_open()) {
-        file >> data;
-        file.close();
-    }
-    return data;
-}
+string passwordMask() {
+    string password;
+    char ch;
 
-// Fungsi untuk menyimpan data ke file JSON
-void simpanKeJson(const json& data, const string& namaFile) {
-    ofstream file(namaFile);
-    if (file.is_open()) {
-        file << data.dump(4); 
-        file.close();
-    }
-}
+    ch = _getch();  
 
-bool cekLoginAdmin(const string& uname, const string& pass) {
-    json dataAdmin = bacaFileJson("Admin.json");
-
-    for (const auto& opr : dataAdmin) {
-        if (opr["username"] == uname && opr["password"] == pass) {
-            return true; 
+    while (ch != 13) { 
+        if (ch != 8) { 
+            password.push_back(ch);
+            cout << '*';
+        } else if (!password.empty()) { 
+            password.pop_back();
+            cout << "\b \b"; 
         }
+        ch = _getch();
     }
-    return false; 
-}
-
-bool cekLoginOperator(const string& opname, const string& oppass) {
-    json dataOperator = bacaFileJson("Operator.json");
-
-    for (const auto& opr : dataOperator) {
-        if (opr["username"] == opname && opr["password"] == oppass) {
-            return true; 
-        }
-    }
-    return false; 
+    cout << endl;
+    return password;
 }
 
 DateTime getDateTime() {
@@ -190,6 +148,48 @@ void countdown_timer(int duration) {
     }
 }
 
+
+// Fungsi untuk membaca file JSON
+json bacaFileJson(const string& namaFile) {
+    ifstream file(namaFile);
+    json data;
+    if (file.is_open()) {
+        file >> data;
+        file.close();
+    }
+    return data;
+}
+
+// Fungsi untuk menyimpan data ke file JSON
+void simpanKeJson(const json& data, const string& namaFile) {
+    ofstream file(namaFile);
+    if (file.is_open()) {
+        file << data.dump(4); 
+        file.close();
+    }
+}
+
+bool cekLoginAdmin(const string& uname, const string& pass) {
+    json dataAdmin = bacaFileJson("Admin.json");
+
+    for (const auto& opr : dataAdmin) {
+        if (opr["username"] == uname && opr["password"] == pass) {
+            return true; 
+        }
+    }
+    return false; 
+}
+
+bool cekLoginOperator(const string& opname, const string& oppass) {
+    json dataOperator = bacaFileJson("Operator.json");
+
+    for (const auto& opr : dataOperator) {
+        if (opr["username"] == opname && opr["password"] == oppass) {
+            return true; 
+        }
+    }
+    return false; 
+}
 
 // Fungsi untuk menambahkan data pemasukan ke file JSON
 void tambahDataPemasukan(const string& namaFile, double pemasukan) {
