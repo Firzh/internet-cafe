@@ -300,11 +300,13 @@ string headerAdmin         = "                                         Menu Admi
 string headerLogin         = "                                           Login                                               \n";
 string headerOperator      = "                                        Menu Operator                                          \n";
 string headerPemasukan     = "                                          Pemasukan                                            \n";
-string headerNewMember     = "                                         Member Baru                                           \n";
-string headerListMember    = "                                         List Member                                           \n";
 string headerUserPaketan   = "                                        User Paketan                                           \n";
 string headerTambahBilling = "                                       Tambah Billing                                          \n";
 string headerPengaturanAdm = "                                      Pengaturan Admin                                         \n";
+string headerNewMember     = "                                         Member Baru                                           \n";
+string headerMembership    = "                                         Membership                                            \n";
+string headerMember        = "                                         Menu Member                                           \n";
+string headerListMember    = "                                         List Member                                           \n";
 
 void editDataAdmin(json& data, const string& username, const string& kunci, const string& nilaiBaru) {
     for (auto& admin : data) {
