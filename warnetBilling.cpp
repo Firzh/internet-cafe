@@ -1491,7 +1491,11 @@ int main() {
             pass = passwordMask();
 
             if (list.cekLoginUser(uname, pass)) {
+                Member& member = list.cariMember(uname, list);
+                int userCredits;
                 tambahEntri("log", "", "User telah login", "uname", "", "", "");
+                userCredits = member.memberCredits;
+                
 
             }
         }
