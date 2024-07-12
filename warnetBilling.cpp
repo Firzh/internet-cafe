@@ -1,4 +1,5 @@
 #include "nlohmann\json.hpp"
+#include <windows.h>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -15,6 +16,37 @@ using json = nlohmann::json;
 void clearScreen() {
     system("cls");
 }
+
+bool stopTimer = false;
+int sisaDetik = 0;
+
+struct tempAdmin{
+    string username;
+    string password;
+    string confPasword;
+};
+
+struct Member {
+    int id;
+    string username;
+    string password;
+    double billing;
+    string paket;
+    string group;
+    int memberCredits;
+};
+
+struct komputer{
+    int idKomputer;
+    bool used;
+    komputer *next;
+};
+
+struct DateTime {
+    string jam;
+    string hari;
+    string tanggal;
+};
 
 string passwordMask() {
     string password;
@@ -34,80 +66,6 @@ string passwordMask() {
     }
     cout << endl;
     return password;
-}
-
-struct tempAdmin{
-    string username;
-    string password;
-    string confPasword;
-};
-
-struct Member {
-    int id;
-    string username;
-    string password;
-    double billing;
-    string paket;
-    string group;
-};
-
-struct DateTime {
-    string jam;
-    string hari;
-    string tanggal;
-};
-
-// Fungsi untuk membaca file JSON
-json bacaFileJson(const string& namaFile) {
-    ifstream file(namaFile);
-    json data;
-    if (file.is_open()) {
-        file >> data;
-        file.close();
-    }
-    return data;
-}
-
-// Fungsi untuk menyimpan data ke file JSON
-void simpanKeJson(const json& data, const string& namaFile) {
-    ofstream file(namaFile);
-    if (file.is_open()) {
-        file << data.dump(4); 
-        file.close();
-    }
-}
-
-bool cekLoginAdmin(const string& uname, const string& pass) {
-    json dataAdmin = bacaFileJson("Admin.json");
-
-    for (const auto& opr : dataAdmin) {
-        if (opr["username"] == uname && opr["password"] == pass) {
-            return true; 
-        }
-    }
-    return false; 
-}
-
-bool cekLoginOperator(const string& opname, const string& oppass) {
-    json dataOperator = bacaFileJson("Operator.json");
-
-    for (const auto& opr : dataOperator) {
-        if (opr["username"] == opname && opr["password"] == oppass) {
-            return true; 
-        }
-    }
-    return false; 
-}
-
-// Fungsi untuk mendapatkan waktu saat ini dalam format ISO 8601
-string getIso8601Time() {
-    auto t = time(nullptr);
-    auto tm = *gmtime(&t);
-    tm.tm_hour += 7; // UTC+7
-
-    ostringstream oss;
-    oss << put_time(&tm, "%FT%T%z");  
-    return oss.str();
 }
 
 DateTime getDateTime() {
@@ -172,10 +130,148 @@ DateTime getDateTime() {
     return result;
 }
 
+// Fungsi timer hitung mundur
+DWORD WINAPI countdownTimer(LPVOID lpParam) {
+    int duration = (int)lpParam;                                        // Mengubah parameter dari tipe LPVOID menjadi int, yang merupakan durasi hitung mundur dalam detik
+    time_t start_time = time(nullptr);                                  // Mendapatkan waktu saat ini sebagai waktu mulai hitung mundur
+
+    while (true) {                                                      // Memulai loop tak terbatas untuk menghitung mundur
+        if (stopTimer) {                                                // Memeriksa apakah variabel global stopTimer telah diatur ke true
+            time_t current_time = time(nullptr);                        // Mendapatkan waktu saat ini dari variabel sebelumnya
+            int elapsed_time = current_time - start_time;               // Menghitung waktu yang telah berlalu sejak mulai hitung mundur
+            sisaDetik = duration - elapsed_time;                        // Menghitung sisa waktu dan menyimpannya dalam variabel global sisaDetik
+            break;                                                      // Keluar dari loop jika stopTimer adalah true
+        }
+
+        time_t current_time = time(nullptr);                            // Mendapatkan waktu saat ini dari variabel sebelumnya
+        int elapsed_time = current_time - start_time;                   // Menghitung waktu yang telah berlalu sejak mulai hitung mundur
+        int remaining_time = duration - elapsed_time;                   // Menghitung sisa waktu
+        
+        string hour = to_string(remaining_time/3600);
+        string minutes = to_string(remaining_time/60 % 60);
+        string second = to_string(remaining_time % 60);
+        string clocks = hour + ":" + minutes + ":" + second;
+
+        if (remaining_time <= 0) {                                      // Memeriksa apakah waktu hitung mundur telah habis
+            cout << "\nWaktu habis!" << endl;                           // Menampilkan pesan bahwa waktu telah habis
+            break;                                                      // Keluar dari loop jika waktu habis
+        }
+
+        // Tampilkan sisa waktu setiap detik
+        cout << "\rSisa waktu: " << clocks << " detik " << flush;       // Menampilkan sisa waktu di baris yang sama (menggunakan carriage return)
+
+        Sleep(1000);                                                    // Jeda 1 detik untuk menghindari loop berjalan terlalu cepat
+    }
+
+    return 0;                                                           // Mengembalikan 0 untuk menunjukkan bahwa fungsi telah selesai dengan sukses
+}
+
+// Fungsi untuk membuka URL atau aplikasi
+void openApplication(const char* application) {
+
+    // Mengubah string C-style ke wide string
+    wchar_t wtext[256];
+    mbstowcs(wtext, application, strlen(application) + 1);
+    LPCWSTR lpwstr = wtext;
+
+    ShellExecuteW(0, 0, lpwstr, 0, 0, SW_SHOW);
+}
+
+// Fungsi laucher sederhana
+void launcher() {
+    clearScreen();
+    int choice = 0;
+    do {
+        cout << "Pilih aplikasi untuk dibuka:\n";
+        cout << "1. Google\n";
+        cout << "2. YouTube\n";
+        cout << "3. Notepad\n";
+        cout << "4. Kalkulator\n";
+        cout << "5. Keluar\n\n";
+        cout << "Masukkan pilihan : \n\n\n";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                openApplication("https://www.google.com");
+                break;
+            case 2:
+                openApplication("https://www.youtube.com");
+                break;
+            case 3:
+                openApplication("notepad");
+                break;
+            case 4:
+                openApplication("calc");
+                break;
+            case 5:
+                cout << "Keluar dari program." << endl;
+                stopTimer = true; // Menghentikan timer
+                Sleep(2);
+                break;
+            default:
+                cout << "Pilihan tidak valid." << endl;
+                Sleep(2);
+                break;
+        }
+    } while (choice != 5);
+}
+
+// Fungsi konversi jam ke detik
+float convertHourToSec(float hour) {
+    float sec;
+    sec = hour * 60 * 60;
+    return sec;
+}
+
+// Fungsi untuk membaca file JSON
+json bacaFileJson(const string& namaFile) {
+    ifstream file(namaFile);
+    json data;
+    if (file.is_open()) {
+        file >> data;
+        file.close();
+    }
+    return data;
+}
+
+// Fungsi untuk menyimpan data ke file JSON
+void simpanKeJson(const json& data, const string& namaFile) {
+    ofstream file(namaFile);
+    if (file.is_open()) {
+        file << data.dump(4); 
+        file.close();
+    }
+}
+
+bool cekLoginAdmin(const string& uname, const string& pass) {
+    json dataAdmin = bacaFileJson("Admin.json");
+
+    for (const auto& opr : dataAdmin) {
+        if (opr["username"] == uname && opr["password"] == pass) {
+            return true; 
+        }
+    }
+    return false; 
+}
+
+bool cekLoginOperator(const string& opname, const string& oppass) {
+    json dataOperator = bacaFileJson("Operator.json");
+
+    for (const auto& opr : dataOperator) {
+        if (opr["username"] == opname && opr["password"] == oppass) {
+            return true; 
+        }
+    }
+    return false; 
+}
 
 // Fungsi untuk menambahkan data pemasukan ke file JSON
 void tambahDataPemasukan(const string& namaFile, double pemasukan) {
     json data;
+
+    DateTime waktu = getDateTime();
+    string date = waktu.hari + waktu.tanggal;
 
     if (ifstream(namaFile)) {
         data = bacaFileJson(namaFile);
@@ -187,7 +283,7 @@ void tambahDataPemasukan(const string& namaFile, double pemasukan) {
     }
 
     json newData = {
-        {"tanggal", getIso8601Time()}, 
+        {"tanggal", date}, 
         {"pemasukan", pemasukan} 
     };
 
@@ -265,17 +361,36 @@ void tambahEntri(string jenis, string admin, string kegiatan, string member, str
     simpanKeJson(data, "Log.json");
 }
 
+void simpanPrintout(const string& username, const string& password) {
+    json data = bacaFileJson("PrintOut.json");
+
+    if (data.empty()) {
+        data["printOut"] = json::array();
+    }
+
+    json newData = {
+        {"Username", username},
+        {"Password", password}
+    };
+
+    data["printOut"].push_back(newData);
+
+    simpanKeJson(data, "PrintOut.json");
+}
+
 string headerDisplayBorder = "|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|\n";
 string headerBorder        = "===============================================================================================\n";
 string headerAdmin         = "                                         Menu Admin                                            \n";
 string headerLogin         = "                                           Login                                               \n";
 string headerOperator      = "                                        Menu Operator                                          \n";
 string headerPemasukan     = "                                          Pemasukan                                            \n";
-string headerNewMember     = "                                         Member Baru                                           \n";
-string headerListMember    = "                                         List Member                                           \n";
 string headerUserPaketan   = "                                        User Paketan                                           \n";
 string headerTambahBilling = "                                       Tambah Billing                                          \n";
 string headerPengaturanAdm = "                                      Pengaturan Admin                                         \n";
+string headerNewMember     = "                                         Member Baru                                           \n";
+string headerMembership    = "                                         Membership                                            \n";
+string headerMember        = "                                         Menu Member                                           \n";
+string headerListMember    = "                                         List Member                                           \n";
 
 void editDataAdmin(json& data, const string& username, const string& kunci, const string& nilaiBaru) {
     for (auto& admin : data) {
@@ -365,6 +480,10 @@ public:
         Node* newNode = new Node;
         newNode->data = newData;
 
+        string name = newData.username;
+        string pass = newData.password;
+        simpanPrintout(name, pass);
+
         if (head == nullptr) {
             head = newNode;
             tail = newNode;
@@ -381,6 +500,40 @@ public:
         cout << "Member berhasil ditambah!\n";
         clock_t start_time = clock();
         while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}  
+    }
+
+    // Fungsi untuk verifikasi member berdasarkan username dan password
+    bool cekLoginUser(string username, string password) {
+
+        // Cek apakah terdapat member dengan melihat head bukan merupakan nullptr
+        if (head == nullptr) {
+            cout << "Member tidak ada...\n";
+            clock_t start_time = clock();
+            while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}  
+            return false;
+        }
+
+        // Set current node menjadi head
+        Node* current = head;
+
+        //  Melakukan pencarian dan pengecekan username + password yang dimasukkan user
+        do {
+            if (current->data.username == username && current->data.password == password) {
+                cout << "Memverifikasi...\n";
+                clock_t start_time = clock();
+                while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
+                clearScreen();
+                cout << "Selamat datang!\n";
+                Sleep(2);
+                return true;
+            }
+            // Melanjutkan ke node selanjutnya jika salah
+            current = current->next;
+
+        // Berhenti apabila kembali bertemu node yang di set menjadi head agar tidak terjadi infinite looping
+        } while (current != head);
+
+        return false;
     }
 
     string generateUniquePass(const Member& member) {
@@ -649,11 +802,13 @@ public:
             case 1:
                 newMember.paket = "Member 5 jam";
                 newMember.billing = 20000;
+                newMember.memberCredits = 5 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             case 2:
                 newMember.paket = "Member 10 jam";
                 newMember.billing = 40000;
+                newMember.memberCredits = 10 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             default:
@@ -677,11 +832,13 @@ public:
             case 1:
                 newMember.paket = "Member 4 jam";
                 newMember.billing = 20000;
+                newMember.memberCredits = 5 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             case 2:
                 newMember.paket = "Member 10 jam";
                 newMember.billing = 50000;
+                newMember.memberCredits = 10 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             default:
@@ -705,11 +862,13 @@ public:
             case 1:
                 newMember.paket = "Member 3 jam";
                 newMember.billing = 25000;  
+                newMember.memberCredits = 3 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             case 2:
                 newMember.paket = "Member 7 jam";
                 newMember.billing = 50000; 
+                newMember.memberCredits = 7 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             default:
@@ -733,11 +892,13 @@ public:
             case 1:
                 newMember.paket = "Member 4 jam";
                 newMember.billing = 50000; 
+                newMember.memberCredits = 4 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing); 
                 break;
             case 2:
                 newMember.paket = "Member 7 jam";
                 newMember.billing = 75000; 
+                newMember.memberCredits = 7 * 3600;
                 tambahDataPemasukan("Pemasukan.json", newMember.billing);
                 break;
             default:
@@ -798,6 +959,7 @@ public:
         cout << "Pilihan Paket:\n";
         cout << "1. Member 5 jam\n";
         cout << "2. Member 10 jam\n";
+        cout << "3. Custom\n";
         cout << "Masukkan pilihan paket: ";
         
         int pilihanGi3;
@@ -814,6 +976,11 @@ public:
                 member.billing = 40000;
                 tambahDataPemasukan("Pemasukan.json", member.billing);
                 break;
+            case 3:
+                cout << "Masukkan billing :";
+                cin >> member.billing;
+                member.memberCredits = member.billing / 4000 * 3600;
+                break;
             default:
                 cout << "Pilihan tidak valid.\n";
                 break;
@@ -826,6 +993,7 @@ public:
         cout << "Pilihan Paket:\n";
         cout << "1. Member 4 jam\n";
         cout << "2. Member 10 jam\n";
+        cout << "3. Custom\n";
         cout << "Masukkan pilihan paket: ";
         
         int pilihanGi5;
@@ -842,6 +1010,11 @@ public:
                 member.billing = 50000;
                 tambahDataPemasukan("Pemasukan.json", member.billing);
                 break;
+            case 3:
+                cout << "Masukkan billing :";
+                cin >> member.billing;
+                member.memberCredits = member.billing / 5000 * 3600;
+                break;
             default:
                 cout << "Pilihan tidak valid.\n";
                 break;
@@ -854,6 +1027,7 @@ public:
         cout << "Pilihan Paket:\n";
         cout << "1. Member 3 jam\n";
         cout << "2. Member 7 jam\n";
+        cout << "3. Custom\n";
         cout << "Masukkan pilihan paket: ";
         
         int pilihanGi7;
@@ -870,6 +1044,11 @@ public:
                 member.billing = 50000; 
                 tambahDataPemasukan("Pemasukan.json", member.billing);
                 break;
+            case 3:
+                cout << "Masukkan billing :";
+                cin >> member.billing;
+                member.memberCredits = member.billing / 7000 * 3600;
+                break;
             default:
                 cout << "Pilihan tidak valid.\n";
                 break;
@@ -882,6 +1061,7 @@ public:
         cout << "Pilihan Paket:\n";
         cout << "1. Member 4 jam\n";
         cout << "2. Member 7 jam\n";
+        cout << "3. Custom\n";
         cout << "Masukkan pilihan paket: ";
         
         int pilihanGVIP;
@@ -897,6 +1077,11 @@ public:
                 member.paket = "Member 7 jam";
                 member.billing = 75000; 
                 tambahDataPemasukan("Pemasukan.json", member.billing);
+                break;
+            case 3:
+                cout << "Masukkan billing :";
+                cin >> member.billing;
+                member.memberCredits = member.billing / 12500 * 3600;
                 break;
             default:
                 cout << "Pilihan tidak valid.\n";
@@ -930,23 +1115,65 @@ public:
         ch = getch();
         clearScreen();
     }
+
+    Node* cariMemberBerdasarkanNama(string nama) {
+        if (head == nullptr) return nullptr;
+
+        Node* current = head;
+        do {
+            if (current->data.username == nama) {
+                return current;
+            }
+            current = current->next;
+        } while (current != head);
+
+        return nullptr;
+    }
+
 };
 
 //================================================================================================================
-// fungsi int main (operator)
+// int main (operator)
+
+// int main() {
+//     int duration;
+//     cout << "Masukkan durasi waktu hitung mundur (dalam detik): ";
+//     cin >> duration;
+
+//     // Jalankan timer di thread terpisah
+//     HANDLE timer_thread = CreateThread(
+//         NULL,                // Default security attributes
+//         0,                   // Default stack size
+//         (LPTHREAD_START_ROUTINE)countdown_timer, // Thread function
+//         (LPVOID)duration,    // Argument untuk thread function
+//         0,                   // Default creation flags
+//         NULL);               // Tidak menyimpan thread identifier
+
+//     // Jalankan fungsi lain sementara timer berjalan di latar belakang
+//     some_other_function();
+
+//     // Tunggu sampai timer selesai
+//     WaitForSingleObject(timer_thread, INFINITE);
+
+//     // Tutup handle thread setelah selesai
+//     CloseHandle(timer_thread);
+
+//     return 0;
+// }
 
 int main() {
     clearScreen();
-    DoubleLinkedlist list;
-    tempAdmin newAdmin;
-    string uname = "", pass, opname = "", oppass, tempLogin;
-    int loop = 0, pilihanLogin;
+    DoubleLinkedlist list;                                  //pembuatan obj "list" dari class Doublelinkedlist
+    tempAdmin newAdmin;                                     //pembuatan obj "newAdmin" dari struct tempAdmin
+    string uname, pass, opname, oppass, tempLogin;          //inisialisasi global variabel string untuk login admin dan operator
+    int loop = 0, pilihanLogin;                             //inisialisasi variabel untuk looping program dan if else
 
     while (loop != 1) {
         cout << headerBorder << headerLogin << headerBorder;
         cout << "Login sebagai :\n\n";
         cout << "1. Operator\n";
-        cout << "2. Admin\n\n";
+        cout << "2. Admin\n";
+        cout << "3. User\n\n";
         cout << "> ";
         cin >> pilihanLogin;
 
@@ -1215,7 +1442,7 @@ int main() {
                         } else {
                             cout << "Member ditemukan: " << member.username << endl;
                             while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}  
-                            cout << "Billing baru: " << member.billing << endl;
+                            cout << "Billing: " << member.billing << endl;
 
                             list.pilihPaketMember(member);
 
@@ -1319,6 +1546,58 @@ int main() {
                     default:
                         break;
                     }
+                }
+            } else {
+                clearScreen();
+                cout << "Username atau password salah. Silahkan coba lagi.";  
+                clock_t start_time = clock();
+                while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
+                clearScreen();  
+            }
+        }
+//================================================================================================================
+// int main (user)
+        else if (pilihanLogin == 3) {
+            clearScreen();
+            cout << headerBorder << headerMember << headerBorder;
+            cout << "Username : ";
+            cin >> uname;
+            cout << "Password : ";
+            pass = passwordMask();
+
+            if (list.cekLoginUser(uname, pass)) {
+                tambahEntri("log", "", "User telah login", "uname", "", "", "");
+
+                int A = 0;
+                while (A != 1){
+                    Member& member = list.cariMember(uname, list);
+                    int userCredits;
+
+                    userCredits = member.memberCredits;
+                    int duration = userCredits;
+        
+                    // Jalankan timer di thread terpisah
+                    HANDLE timer_thread = CreateThread(
+                        NULL,                // Default security attributes
+                        0,                   // Default stack size
+                        countdownTimer,      // Thread function
+                        (LPVOID)duration,    // Argument untuk thread function
+                        0,                   // Default creation flags
+                        NULL);               // Tidak menyimpan thread identifier
+
+                    // Jalankan fungsi lain sementara timer berjalan di latar belakang
+                    launcher();
+                    Sleep(500);
+
+                    // Tunggu sampai timer selesai
+                    WaitForSingleObject(timer_thread, INFINITE);
+
+                    // Memasukkan kembali sisa waktu ke dalam userCredits
+                    member.memberCredits = sisaDetik;
+
+                    // Tutup handle thread setelah selesai
+                    CloseHandle(timer_thread);
+                    A = 1;
                 }
             } else {
                 clearScreen();

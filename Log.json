@@ -2,9 +2,7 @@
     "$date": "Selasa, 9-07-2024",
     "&log": [
         {
-            "$jam": "14:35:52",
-            "%kegiatan": "Admin telah login",
-            "&admin": "Firzh"
+
         }
     ],
     "^warning!": [],
