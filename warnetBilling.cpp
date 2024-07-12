@@ -338,7 +338,7 @@ void tambahEntri(string jenis, string admin, string kegiatan, string member, str
     simpanKeJson(data, "Log.json");
 }
 
-void simpanPrintout(const string& namaFile, const string& username, const string& password) {
+void simpanPrintout(const string& username, const string& password) {
     json data = bacaFileJson("PrintOut.json");
 
     if (data.empty()) {
@@ -457,6 +457,10 @@ public:
         Node* newNode = new Node;
         newNode->data = newData;
 
+        string name = newData.username;
+        string pass = newData.password;
+        simpanPrintout(name, pass);
+
         if (head == nullptr) {
             head = newNode;
             tail = newNode;
@@ -498,6 +502,7 @@ public:
                 clearScreen();
                 cout << "Selamat datang!\n";
                 Sleep(2);
+                return true;
             }
             // Melanjutkan ke node selanjutnya jika salah
             current = current->next;
@@ -1144,7 +1149,8 @@ int main() {
         cout << headerBorder << headerLogin << headerBorder;
         cout << "Login sebagai :\n\n";
         cout << "1. Operator\n";
-        cout << "2. Admin\n\n";
+        cout << "2. Admin\n";
+        cout << "3. User\n\n";
         cout << "> ";
         cin >> pilihanLogin;
 
