@@ -148,6 +148,52 @@ void countdownTimer(int duration) {
     }
 }
 
+// Fungsi untuk membuka URL atau aplikasi
+void openApplication(const char* application) {
+    // Mengubah string C-style ke wide string
+    wchar_t wtext[256];
+    mbstowcs(wtext, application, strlen(application) + 1);
+    LPCWSTR lpwstr = wtext;
+
+    ShellExecuteW(0, 0, lpwstr, 0, 0, SW_SHOW);
+}
+
+// Fungsi laucher sederhana
+void launcher() {
+    int choice;
+    cout << "Pilih aplikasi untuk dibuka:\n";
+    cout << "1. Google\n";
+    cout << "2. YouTube\n";
+    cout << "3. Notepad\n";
+    cout << "4. Kalkulator\n";
+    cout << "5. Keluar\n";
+    cout << "Masukkan pilihan : ";
+    cin >> choice;
+
+    switch (choice) {
+        case 1:
+            openApplication("https://www.google.com");
+            break;
+        case 2:
+            openApplication("https://www.youtube.com");
+            break;
+        case 3:
+            openApplication("notepad");
+            break;
+        case 4:
+            openApplication("calc");
+            break;
+        case 5:
+            cout << "Keluar dari program." << endl;
+            Sleep(2);
+            break;
+        default:
+            cout << "Pilihan tidak valid." << endl;
+            Sleep(2);
+            break;
+    }
+}
+
 // Fungsi konversi jam ke detik
 float convertHourToSec(float hour) {
     float sec;
@@ -1495,8 +1541,25 @@ int main() {
                 int userCredits;
                 tambahEntri("log", "", "User telah login", "uname", "", "", "");
                 userCredits = member.memberCredits;
-                
+                int duration = userCredits;
+    
+                // Jalankan timer di thread terpisah
+                HANDLE timer_thread = CreateThread(
+                    NULL,                // Default security attributes
+                    0,                   // Default stack size
+                    (LPTHREAD_START_ROUTINE)countdownTimer, // Thread function
+                    (LPVOID)duration,    // Argument untuk thread function
+                    0,                   // Default creation flags
+                    NULL);               // Tidak menyimpan thread identifier
 
+                // Jalankan fungsi lain sementara timer berjalan di latar belakang
+                launcher();
+
+                // Tunggu sampai timer selesai
+                WaitForSingleObject(timer_thread, INFINITE);
+
+                // Tutup handle thread setelah selesai
+                CloseHandle(timer_thread);
             }
         }
     }
