@@ -206,6 +206,7 @@ void launcher() {
                 break;
             case 5:
                 cout << "Keluar dari program." << endl;
+                stopTimer = true; // Menghentikan timer
                 Sleep(2);
                 break;
             default:
@@ -1605,7 +1606,6 @@ int main() {
                 while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
                 clearScreen();  
             }
-            loop = 1;
         }
     }
     return 0;
