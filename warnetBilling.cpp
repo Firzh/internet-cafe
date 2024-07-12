@@ -17,6 +17,9 @@ void clearScreen() {
     system("cls");
 }
 
+bool stopTimer = false;
+int sisaDetik = 0;
+
 struct tempAdmin{
     string username;
     string password;
@@ -128,28 +131,44 @@ DateTime getDateTime() {
 }
 
 // Fungsi timer hitung mundur
-void countdownTimer(int duration) {
-    time_t start_time = time(nullptr);
+DWORD WINAPI countdownTimer(LPVOID lpParam) {
+    int duration = (int)lpParam;                                        // Mengubah parameter dari tipe LPVOID menjadi int, yang merupakan durasi hitung mundur dalam detik
+    time_t start_time = time(nullptr);                                  // Mendapatkan waktu saat ini sebagai waktu mulai hitung mundur
 
-    while (true) {
-        time_t current_time = time(nullptr);
-        int elapsed_time = current_time - start_time;
-        int remaining_time = duration - elapsed_time;
+    while (true) {                                                      // Memulai loop tak terbatas untuk menghitung mundur
+        if (stopTimer) {                                                // Memeriksa apakah variabel global stopTimer telah diatur ke true
+            time_t current_time = time(nullptr);                        // Mendapatkan waktu saat ini dari variabel sebelumnya
+            int elapsed_time = current_time - start_time;               // Menghitung waktu yang telah berlalu sejak mulai hitung mundur
+            sisaDetik = duration - elapsed_time;                        // Menghitung sisa waktu dan menyimpannya dalam variabel global sisaDetik
+            break;                                                      // Keluar dari loop jika stopTimer adalah true
+        }
 
-        if (remaining_time <= 0) {
-            cout << "\nWaktu habis!" << endl;
-            break;
+        time_t current_time = time(nullptr);                            // Mendapatkan waktu saat ini dari variabel sebelumnya
+        int elapsed_time = current_time - start_time;                   // Menghitung waktu yang telah berlalu sejak mulai hitung mundur
+        int remaining_time = duration - elapsed_time;                   // Menghitung sisa waktu
+        
+        string hour = to_string(remaining_time/3600);
+        string minutes = to_string(remaining_time/60 % 60);
+        string second = to_string(remaining_time % 60);
+        string clocks = hour + ":" + minutes + ":" + second;
+
+        if (remaining_time <= 0) {                                      // Memeriksa apakah waktu hitung mundur telah habis
+            cout << "\nWaktu habis!" << endl;                           // Menampilkan pesan bahwa waktu telah habis
+            break;                                                      // Keluar dari loop jika waktu habis
         }
 
         // Tampilkan sisa waktu setiap detik
-        cout << "\rSisa waktu: " << remaining_time << " detik " << flush;
+        cout << "\rSisa waktu: " << clocks << " detik " << flush;       // Menampilkan sisa waktu di baris yang sama (menggunakan carriage return)
 
-        Sleep(1000); // Jeda 1 detik
+        Sleep(1000);                                                    // Jeda 1 detik untuk menghindari loop berjalan terlalu cepat
     }
+
+    return 0;                                                           // Mengembalikan 0 untuk menunjukkan bahwa fungsi telah selesai dengan sukses
 }
 
 // Fungsi untuk membuka URL atau aplikasi
 void openApplication(const char* application) {
+
     // Mengubah string C-style ke wide string
     wchar_t wtext[256];
     mbstowcs(wtext, application, strlen(application) + 1);
@@ -160,38 +179,41 @@ void openApplication(const char* application) {
 
 // Fungsi laucher sederhana
 void launcher() {
-    int choice;
-    cout << "Pilih aplikasi untuk dibuka:\n";
-    cout << "1. Google\n";
-    cout << "2. YouTube\n";
-    cout << "3. Notepad\n";
-    cout << "4. Kalkulator\n";
-    cout << "5. Keluar\n";
-    cout << "Masukkan pilihan : ";
-    cin >> choice;
+    clearScreen();
+    int choice = 0;
+    do {
+        cout << "Pilih aplikasi untuk dibuka:\n";
+        cout << "1. Google\n";
+        cout << "2. YouTube\n";
+        cout << "3. Notepad\n";
+        cout << "4. Kalkulator\n";
+        cout << "5. Keluar\n\n";
+        cout << "Masukkan pilihan : \n\n\n";
+        cin >> choice;
 
-    switch (choice) {
-        case 1:
-            openApplication("https://www.google.com");
-            break;
-        case 2:
-            openApplication("https://www.youtube.com");
-            break;
-        case 3:
-            openApplication("notepad");
-            break;
-        case 4:
-            openApplication("calc");
-            break;
-        case 5:
-            cout << "Keluar dari program." << endl;
-            Sleep(2);
-            break;
-        default:
-            cout << "Pilihan tidak valid." << endl;
-            Sleep(2);
-            break;
-    }
+        switch (choice) {
+            case 1:
+                openApplication("https://www.google.com");
+                break;
+            case 2:
+                openApplication("https://www.youtube.com");
+                break;
+            case 3:
+                openApplication("notepad");
+                break;
+            case 4:
+                openApplication("calc");
+                break;
+            case 5:
+                cout << "Keluar dari program." << endl;
+                Sleep(2);
+                break;
+            default:
+                cout << "Pilihan tidak valid." << endl;
+                Sleep(2);
+                break;
+        }
+    } while (choice != 5);
 }
 
 // Fungsi konversi jam ke detik
@@ -1543,30 +1565,47 @@ int main() {
             pass = passwordMask();
 
             if (list.cekLoginUser(uname, pass)) {
-                Member& member = list.cariMember(uname, list);
-                int userCredits;
                 tambahEntri("log", "", "User telah login", "uname", "", "", "");
-                userCredits = member.memberCredits;
-                int duration = userCredits;
-    
-                // Jalankan timer di thread terpisah
-                HANDLE timer_thread = CreateThread(
-                    NULL,                // Default security attributes
-                    0,                   // Default stack size
-                    (LPTHREAD_START_ROUTINE)countdownTimer, // Thread function
-                    (LPVOID)duration,    // Argument untuk thread function
-                    0,                   // Default creation flags
-                    NULL);               // Tidak menyimpan thread identifier
 
-                // Jalankan fungsi lain sementara timer berjalan di latar belakang
-                launcher();
+                int A = 0;
+                while (A != 1){
+                    Member& member = list.cariMember(uname, list);
+                    int userCredits;
 
-                // Tunggu sampai timer selesai
-                WaitForSingleObject(timer_thread, INFINITE);
+                    userCredits = member.memberCredits;
+                    int duration = userCredits;
+        
+                    // Jalankan timer di thread terpisah
+                    HANDLE timer_thread = CreateThread(
+                        NULL,                // Default security attributes
+                        0,                   // Default stack size
+                        countdownTimer,      // Thread function
+                        (LPVOID)duration,    // Argument untuk thread function
+                        0,                   // Default creation flags
+                        NULL);               // Tidak menyimpan thread identifier
 
-                // Tutup handle thread setelah selesai
-                CloseHandle(timer_thread);
+                    // Jalankan fungsi lain sementara timer berjalan di latar belakang
+                    launcher();
+                    Sleep(500);
+
+                    // Tunggu sampai timer selesai
+                    WaitForSingleObject(timer_thread, INFINITE);
+
+                    // Memasukkan kembali sisa waktu ke dalam userCredits
+                    member.memberCredits = sisaDetik;
+
+                    // Tutup handle thread setelah selesai
+                    CloseHandle(timer_thread);
+                    A = 1;
+                }
+            } else {
+                clearScreen();
+                cout << "Username atau password salah. Silahkan coba lagi.";  
+                clock_t start_time = clock();
+                while ((clock() - start_time) / CLOCKS_PER_SEC < 1) {}
+                clearScreen();  
             }
+            loop = 1;
         }
     }
     return 0;
